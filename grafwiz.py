@@ -155,8 +155,8 @@ class Dashboard(gf.Dashboard):
 
     def deploy(self, url, user='', password=''):
 
-        user = user or environ.get('V3IO_USER', ''),
-        password = password or environ.get('V3IO_PASSWORD', ''),
+        user = user or environ.get('V3IO_USERNAME', '')
+        password = password or environ.get('V3IO_PASSWORD', '')
 
         res = requests.post(url='{}/api/dashboards/import'.format(url),
                             data=self.__generate(),
