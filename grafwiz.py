@@ -153,7 +153,7 @@ class Dashboard(gf.Dashboard):
     def show(self):
         return self.__generate()
 
-    def deploy(self, url, user, password):
+    def deploy(self, url, user='', password=''):
 
         user = user or environ.get('V3IO_USER', ''),
         password = password or environ.get('V3IO_PASSWORD', ''),
