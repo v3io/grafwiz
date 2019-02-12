@@ -13,6 +13,7 @@ from grafanalib.core import (Time, Templating, Template, Row, TABLE_TARGET_FORMA
                              single_y_axis, ColumnStyle)
 from grafanalib._gen import DashboardEncoder
 from attr.validators import instance_of
+from os import environ
 
 
 @attr.s
@@ -153,6 +154,9 @@ class Dashboard(gf.Dashboard):
         return self.__generate()
 
     def deploy(self, url, user, password):
+
+        user = user or environ.get('V3IO_USER', ''),
+        password = password or environ.get('V3IO_PASSWORD', ''),
 
         res = requests.post(url='{}/api/dashboards/import'.format(url),
                             data=self.__generate(),
