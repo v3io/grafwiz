@@ -135,7 +135,7 @@ class Dashboard(gf.Dashboard):
     start = attr.ib(default='now-1h')
     end = attr.ib(default='now')
     templates = attr.ib(default=[])
-    dataSource = attr.ib(default='')
+    dataSource = attr.ib(default='iguazio')
     backend = attr.ib(default='')
     container = attr.ib(default='')
 
