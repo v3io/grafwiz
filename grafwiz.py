@@ -9,6 +9,8 @@ import attr
 import grafanalib.core as gf
 import requests
 from requests.auth import HTTPBasicAuth
+from requests.exceptions import HTTPError
+from requests.status_codes import codes as request_codes
 from grafanalib.core import (Time, Templating, Template, Row, TABLE_TARGET_FORMAT, Target,
                              single_y_axis, ColumnStyle)
 from grafanalib._gen import DashboardEncoder
@@ -303,4 +305,47 @@ class Graph(gf.Graph):
 
         return self
 
+@attr.s
+class DataSource(object):
 
+    name = attr.ib(default='iguazio')
+    frames_url = attr.ib(default='http://v3io-framesd-http:8080')
+    frames_user = attr.ib(default='')
+    frames_password = attr.ib(default='')
+    frames_accesskey = attr.ib(default='')
+
+    def deploy(self, url, user='', password='', overwrite=False):
+
+        user = user or environ.get('V3IO_USERNAME', '')
+        password = password or environ.get('V3IO_PASSWORD', '')
+        frames_user = self.frames_user or user
+        frames_password = self.frames_password or password
+        frames_accesskey = self.frames_accesskey or environ.get('V3IO_ACCESS_KEY', '')
+
+        kw = dict(url='{}/api/datasources'.format(url),
+                  verify=False,
+                  data=json.dumps(dict(name=self.name,
+                                       type='grafana-simple-json-datasource',
+                                       url=self.frames_url,
+                                       access='proxy',
+                                       basicAuth=True,
+                                       basicAuthUser=frames_user,
+                                       basicAuthPassword=frames_password)),
+                  auth=HTTPBasicAuth(user, password),
+                  headers={'content-type': 'application/json'})
+        res = requests.post(**kw)
+        try:
+            res.raise_for_status()
+        except HTTPError:
+            if res.status_code == request_codes.conflict:
+                print('Datasource {} already exists'.format(self.name))
+                if overwrite:
+                    print('Recreating datasource {}'.format(self.name))
+                    res = requests.delete(url='{}/api/datasources/name/{}'.format(self.__grafana_url, self.name), verify=False,
+                                          auth=HTTPBasicAuth(*self.__auth))
+                    res.raise_for_status()
+                    res = requests.post(**kw)
+                    res.raise_for_status()
+            else:
+                raise
+        print('Datasource {} created successfully'.format(self.name))
