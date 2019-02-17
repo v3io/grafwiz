@@ -157,12 +157,13 @@ class Dashboard(gf.Dashboard):
 
     def deploy(self, url, user='', password=''):
 
-        user = user or environ.get('V3IO_USERNAME', '')
-        password = password or environ.get('V3IO_PASSWORD', '')
+        auth = None
+        if user:
+            auth = HTTPBasicAuth(user, password)
 
         res = requests.post(url='{}/api/dashboards/import'.format(url),
                             data=self.__generate(),
-                            auth=HTTPBasicAuth(user, password),
+                            auth=auth,
                             headers={'Content-Type': 'application/json;charset=UTF-8'})
         res.raise_for_status()
         print('Dashboard {} created successfully'.format(self.title))
@@ -316,10 +317,8 @@ class DataSource(object):
 
     def deploy(self, url, user='', password='', overwrite=False):
 
-        user = user or environ.get('V3IO_USERNAME', '')
-        password = password or environ.get('V3IO_PASSWORD', '')
-        frames_user = self.frames_user or user
-        frames_password = self.frames_password or password
+        frames_user = self.frames_user or environ.get('V3IO_USERNAME', '')
+        frames_password = self.frames_password or environ.get('V3IO_PASSWORD', '')
         frames_accesskey = self.frames_accesskey or environ.get('V3IO_ACCESS_KEY', '')
 
         kw = dict(url='{}/api/datasources'.format(url),
@@ -331,8 +330,11 @@ class DataSource(object):
                                        basicAuth=True,
                                        basicAuthUser=frames_user,
                                        basicAuthPassword=frames_password)),
-                  auth=HTTPBasicAuth(user, password),
+                  auth=None,
                   headers={'content-type': 'application/json'})
+        if user:
+            kw['auth'] = HTTPBasicAuth(user, password)
+
         res = requests.post(**kw)
         try:
             res.raise_for_status()
