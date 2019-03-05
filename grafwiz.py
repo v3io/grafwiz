@@ -147,9 +147,11 @@ class Dashboard(gf.Dashboard):
         self.rows += [Row(panels=panels, **kw)]
         return self
 
-    def template(self, name='', type='query', **kw):
+    def template(self, name, frame=None, type='query', query='', **kw):
         kw['dataSource'] = getattr(kw, 'dataSource', '') or self.dataSource
-        self.templates += [Template(name=name, type=type, **kw)]
+        if frame and not query:
+            query = frame.gen_target
+        self.templates += [Template(name=name, type=type, query=query, **kw)]
         return self
 
     def show(self):
@@ -194,7 +196,7 @@ class DataFrame:
     fields = attr.ib(default=[])
 
     def gen_target(self):
-        target = ['table_name='+self.table,
+        target = ['table='+self.table,
                   'fields={}'.format(','.join(self.fields)),'backend='+ self.backend, 'container='+ self.container]
 
         if self.filter:
@@ -310,7 +312,7 @@ class Graph(gf.Graph):
 class DataSource(object):
 
     name = attr.ib(default='iguazio')
-    frames_url = attr.ib(default='http://v3io-framesd-http:8080')
+    frames_url = attr.ib(default='http://framesd:8080')
     frames_user = attr.ib(default='')
     frames_password = attr.ib(default='')
     frames_accesskey = attr.ib(default='')
@@ -320,6 +322,10 @@ class DataSource(object):
         frames_user = self.frames_user or environ.get('V3IO_USERNAME', '')
         frames_password = self.frames_password or environ.get('V3IO_PASSWORD', '')
         frames_accesskey = self.frames_accesskey or environ.get('V3IO_ACCESS_KEY', '')
+        if frames_accesskey and not frames_password:
+            # in case of access key we use fake user account __ACCESS_KEY in basic auth
+            frames_user = '__ACCESS_KEY'
+            frames_password = frames_accesskey
 
         kw = dict(url='{}/api/datasources'.format(url),
                   verify=False,
