@@ -119,7 +119,7 @@ class Ajax(object):
             'type': "ryantxu-ajax-panel"
         }
 
-_query_separator= ';'
+_query_separator = ';'
 
 @attr.s
 class Dashboard(gf.Dashboard):
@@ -131,15 +131,16 @@ class Dashboard(gf.Dashboard):
     :param end: end time, e.g. now
     """
 
-    rows = attr.ib(default=[])
+    rows = attr.ib(default=attr.Factory(list))
     start = attr.ib(default='now-1h')
     end = attr.ib(default='now')
-    templates = attr.ib(default=[])
+    templates = attr.ib(default=attr.Factory(list))
     dataSource = attr.ib(default='iguazio')
     backend = attr.ib(default='')
     container = attr.ib(default='')
 
-    def row(self, elements=[], **kw):
+    def row(self, elements=None, **kw):
+        elements = elements or []
         panels = []
         for element in elements:
             element.dataSource = getattr(element, 'dataSource', '') or self.dataSource
