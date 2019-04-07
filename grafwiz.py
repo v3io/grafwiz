@@ -186,7 +186,7 @@ class Dashboard(gf.Dashboard):
 
 
 @attr.s
-class DataFrame:
+class DataFrame(object):
 
     backend = attr.ib()
     container = attr.ib(default='')
@@ -357,3 +357,4 @@ class DataSource(object):
             else:
                 raise
         print('Datasource {} created successfully'.format(self.name))
+
