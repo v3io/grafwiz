@@ -37,7 +37,7 @@ setup(
     license='Apache',
     url='https://github.com/v3io/grafwiz',
     py_modules=['grafwiz'],
-    install_requires=['grafanalib'],
+    install_requires=['grafanalib', 'attrs==19.1.0'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
