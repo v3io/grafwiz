@@ -167,7 +167,8 @@ class Dashboard(gf.Dashboard):
         res = requests.post(url='{}/api/dashboards/import'.format(url),
                             data=self.__generate(),
                             auth=auth,
-                            headers={'Content-Type': 'application/json;charset=UTF-8'})
+                            headers={'Content-Type': 'application/json;charset=UTF-8',
+                                     'x-remote-user': environ.get('V3IO_USERNAME', 'admin')})
         res.raise_for_status()
         print('Dashboard {} created successfully'.format(self.title))
 
@@ -338,7 +339,8 @@ class DataSource(object):
                                        basicAuthUser=frames_user,
                                        basicAuthPassword=frames_password)),
                   auth=None,
-                  headers={'content-type': 'application/json'})
+                  headers={'content-type': 'application/json',
+                           'x-remote-user': environ.get('V3IO_USERNAME', 'admin')})
         if user:
             kw['auth'] = HTTPBasicAuth(user, password)
 
