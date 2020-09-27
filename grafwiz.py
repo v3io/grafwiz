@@ -319,7 +319,7 @@ class DataSource(object):
     frames_password = attr.ib(default='')
     frames_accesskey = attr.ib(default='')
 
-    def deploy(self, url, user='', password='', overwrite=False):
+    def deploy(self, url, user='', password='', overwrite=False, use_auth=True):
 
         frames_user = self.frames_user or environ.get('V3IO_USERNAME', '')
         frames_password = self.frames_password or environ.get('V3IO_PASSWORD', '')
@@ -334,14 +334,16 @@ class DataSource(object):
                   data=json.dumps(dict(name=self.name,
                                        type='grafana-simple-json-datasource',
                                        url=self.frames_url,
-                                       access='proxy',
-                                       basicAuth=True,
-                                       basicAuthUser=frames_user,
-                                       basicAuthPassword=frames_password)),
+                                       access='proxy'),
                   auth=None,
                   headers={'content-type': 'application/json',
                            'x-remote-user': environ.get('V3IO_USERNAME', 'admin')})
-        if user:
+
+        if use_auth:
+            auth_dict = dict(basicAuth=True, 
+                             basicAuthUser=frames_user,
+                             basicAuthPassword=frames_password)
+            kw['data'].append(auth_dict)
             kw['auth'] = HTTPBasicAuth(user, password)
 
         res = requests.post(**kw)
