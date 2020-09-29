@@ -357,32 +357,35 @@ class DataSource(object):
             frames_user = "__ACCESS_KEY"
             frames_password = frames_accesskey
 
+        data_dict = dict(
+            name=self.name,
+            type="grafana-simple-json-datasource",
+            url=self.frames_url,
+            access="proxy",
+        )
+
+        auth = None
+        if use_auth:
+            auth_user = frames_user if user == "" else user
+            auth_password = frames_password if password == "" else password
+
+            auth_dict = dict(
+                basicAuth=True,
+                basicAuthUser=auth_user,
+                basicAuthPassword=auth_password,
+            )
+            data_dict.update(auth_dict)
+
         kw = dict(
             url="{}/api/datasources".format(url),
             verify=False,
-            data=json.dumps(
-                dict(
-                    name=self.name,
-                    type="grafana-simple-json-datasource",
-                    url=self.frames_url,
-                    access="proxy",
-                )
-            ),
-            auth=None,
+            data=json.dumps(data_dict),
+            auth=auth,
             headers={
                 "content-type": "application/json",
                 "x-remote-user": environ.get("V3IO_USERNAME", "admin"),
             },
         )
-
-        if use_auth:
-            auth_dict = dict(
-                basicAuth=True,
-                basicAuthUser=frames_user,
-                basicAuthPassword=frames_password,
-            )
-            kw["data"].append(auth_dict)
-            kw["auth"] = HTTPBasicAuth(user, password)
 
         res = requests.post(**kw)
         try:
