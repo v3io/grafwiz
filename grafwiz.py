@@ -175,7 +175,11 @@ class Dashboard(gf.Dashboard):
 
     def deploy(self, url, user="", password=""):
 
-        auth = get_http_auth() if not (user and password) else None
+        auth = (
+            get_http_auth()
+            if not (user and password)
+            else HTTPBasicAuth(user, password)
+        )
 
         res = requests.post(
             url="{}/api/dashboards/import".format(url),
@@ -359,9 +363,11 @@ class DataSource(object):
             access="proxy",
         )
 
-        auth = get_http_auth()
-        if user and password:
-            auth = HTTPBasicAuth(user, password)
+        auth = (
+            get_http_auth()
+            if not (user and password)
+            else HTTPBasicAuth(user, password)
+        )
 
         if use_auth or (use_auth is None and self.use_auth):
             auth_dict = dict(
