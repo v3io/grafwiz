@@ -27,7 +27,7 @@ from os import environ
 
 
 def get_http_auth():
-    return HTTPBasicAuth(self.http_user, self.http_access_key)
+    return HTTPBasicAuth('IGZGrafanaAdmin', 'IGZGrafanaAdmin123!')
 
 
 @attr.s
