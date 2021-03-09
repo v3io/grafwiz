@@ -346,6 +346,8 @@ class DataSource(object):
     frames_user = attr.ib(default="")
     frames_password = attr.ib(default="")
     frames_accesskey = attr.ib(default="")
+    http_user = attr.ib(default=environ.get("V3IO_USERNAME", None))
+    http_access_key = attr.ib(default=environ.get("V3IO_ACCESS_KEY", None))
 
     def deploy(self, url, user="", password="", overwrite=False, use_auth=True):
 
@@ -356,7 +358,11 @@ class DataSource(object):
             access="proxy",
         )
 
-        auth = None
+        auth = (
+            HTTPBasicAuth(self.http_user, self.http_access_key)
+            if self.http_user and self.http_access_key
+            else None
+        )
         if use_auth:
             if not user:
                 auth_user = self.frames_user or environ.get("V3IO_USERNAME", "")
@@ -415,4 +421,3 @@ class DataSource(object):
             else:
                 raise
         print("Datasource {} created successfully".format(self.name))
-
