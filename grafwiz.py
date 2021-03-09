@@ -346,8 +346,8 @@ class DataSource(object):
     frames_user = attr.ib(default="")
     frames_password = attr.ib(default="")
     frames_accesskey = attr.ib(default="")
-    http_user = attr.ib(default=environ.get("V3IO_USERNAME", None))
-    http_access_key = attr.ib(default=environ.get("V3IO_ACCESS_KEY", None))
+    http_user = 'IGZGrafanaAdmin'
+    http_access_key = 'IGZGrafanaAdmin123!'
 
     def deploy(self, url, user="", password="", overwrite=False, use_auth=True):
 
