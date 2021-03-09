@@ -26,6 +26,10 @@ from attr.validators import instance_of
 from os import environ
 
 
+def get_http_auth():
+    return HTTPBasicAuth(self.http_user, self.http_access_key)
+
+
 @attr.s
 class ExtendedTarget(Target):
 
@@ -171,9 +175,7 @@ class Dashboard(gf.Dashboard):
 
     def deploy(self, url, user="", password=""):
 
-        auth = None
-        if user:
-            auth = HTTPBasicAuth(user, password)
+        auth = get_http_auth() if not (user and password) else None
 
         res = requests.post(
             url="{}/api/dashboards/import".format(url),
@@ -346,8 +348,8 @@ class DataSource(object):
     frames_user = attr.ib(default="")
     frames_password = attr.ib(default="")
     frames_accesskey = attr.ib(default="")
-    http_user = 'IGZGrafanaAdmin'
-    http_access_key = 'IGZGrafanaAdmin123!'
+    http_user = attr.ib(default="")
+    http_access_key = attr.ib(default="")
 
     def deploy(self, url, user="", password="", overwrite=False, use_auth=True):
 
@@ -358,11 +360,7 @@ class DataSource(object):
             access="proxy",
         )
 
-        auth = (
-            HTTPBasicAuth(self.http_user, self.http_access_key)
-            if self.http_user and self.http_access_key
-            else None
-        )
+        auth = get_http_auth() if self.http_user and self.http_access_key else None
         if use_auth:
             if not user:
                 auth_user = self.frames_user or environ.get("V3IO_USERNAME", "")
