@@ -360,7 +360,7 @@ class DataSource(object):
             access="proxy",
         )
 
-        auth = get_http_auth() if self.http_user and self.http_access_key else None
+        auth = get_http_auth() if not (self.http_user and self.http_access_key) else None
         if use_auth:
             if not user:
                 auth_user = self.frames_user or environ.get("V3IO_USERNAME", "")
