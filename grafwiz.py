@@ -350,9 +350,7 @@ class DataSource(object):
     frames_accesskey = attr.ib(default="")
     use_auth = attr.ib(default=True)
 
-    def deploy(
-        self, url, user="", password="", overwrite=False, use_auth=self.user_auth
-    ):
+    def deploy(self, url, user="", password="", overwrite=False, use_auth=use_auth):
 
         data_dict = dict(
             name=self.name,
