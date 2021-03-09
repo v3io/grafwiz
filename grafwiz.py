@@ -363,7 +363,7 @@ class DataSource(object):
         if user and password:
             auth = HTTPBasicAuth(user, password)
 
-        if (not self.use_auth and use_auth) or self.use_auth:
+        if use_auth or (use_auth is None and self.use_auth):
             auth_dict = dict(
                 basicAuth=True,
                 basicAuthUser=self.frames_user or "__ACCESS_KEY",
