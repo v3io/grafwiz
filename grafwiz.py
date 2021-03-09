@@ -27,7 +27,7 @@ from os import environ
 
 
 def get_http_auth():
-    return HTTPBasicAuth('IGZGrafanaAdmin', 'IGZGrafanaAdmin123!')
+    return HTTPBasicAuth("IGZGrafanaAdmin", "IGZGrafanaAdmin123!")
 
 
 @attr.s
@@ -348,10 +348,11 @@ class DataSource(object):
     frames_user = attr.ib(default="")
     frames_password = attr.ib(default="")
     frames_accesskey = attr.ib(default="")
-    http_user = attr.ib(default="")
-    http_access_key = attr.ib(default="")
+    use_auth = attr.ib(default=True)
 
-    def deploy(self, url, user="", password="", overwrite=False, use_auth=True):
+    def deploy(
+        self, url, user="", password="", overwrite=False, use_auth=self.user_auth
+    ):
 
         data_dict = dict(
             name=self.name,
@@ -360,30 +361,15 @@ class DataSource(object):
             access="proxy",
         )
 
-        auth = get_http_auth() if not (self.http_user and self.http_access_key) else None
+        auth = (
+            get_http_auth() if not (self.http_user and self.http_access_key) else None
+        )
         if use_auth:
-            if not user:
-                auth_user = self.frames_user or environ.get("V3IO_USERNAME", "")
-            else:
-                auth_user = user
-            if not password:
-                if not self.frames_password:
-                    # in case of access key we use fake user account __ACCESS_KEY in basic auth
-                    auth_user = "__ACCESS_KEY"
-                    auth_password = self.frames_accesskey or environ.get(
-                        "V3IO_ACCESS_KEY"
-                    )
-                else:
-                    auth_password = self.frames_password or environ.get(
-                        "V3IO_PASSWORD", ""
-                    )
-            else:
-                auth_password = password
-
             auth_dict = dict(
                 basicAuth=True,
-                basicAuthUser=auth_user,
-                basicAuthPassword=auth_password,
+                basicAuthUser=self.frames_user or "__ACCESS_KEY",
+                basicAuthPassword=self.frames_accesskey
+                or environ.get("V3IO_ACCESS_KEY"),
             )
             data_dict.update(auth_dict)
 
