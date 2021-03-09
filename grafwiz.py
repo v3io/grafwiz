@@ -350,7 +350,7 @@ class DataSource(object):
     frames_accesskey = attr.ib(default="")
     use_auth = attr.ib(default=True)
 
-    def deploy(self, url, user="", password="", overwrite=False, use_auth=use_auth):
+    def deploy(self, url, user="", password="", overwrite=False):
 
         data_dict = dict(
             name=self.name,
@@ -359,10 +359,11 @@ class DataSource(object):
             access="proxy",
         )
 
-        auth = (
-            get_http_auth() if not (self.http_user and self.http_access_key) else None
-        )
-        if use_auth:
+        auth = get_http_auth()
+        if user and password:
+            auth = HTTPBasicAuth(user, password)
+
+        if self.use_auth:
             auth_dict = dict(
                 basicAuth=True,
                 basicAuthUser=self.frames_user or "__ACCESS_KEY",
