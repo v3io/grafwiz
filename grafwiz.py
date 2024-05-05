@@ -1,6 +1,6 @@
 # extending grafanalib from https://github.com/weaveworks/grafanalib
 
-__version__ = 1.1
+__version__ = 1.2
 
 import json
 import random
@@ -22,7 +22,7 @@ from grafanalib.core import (
     ColumnStyle,
 )
 from grafanalib._gen import DashboardEncoder
-from attr.validators import instance_of
+from attr.validators import instance_of, in_
 from os import environ
 
 
@@ -57,9 +57,15 @@ class DashboardImport(object):
 
 @attr.s
 class ExtendedColumnStyle(ColumnStyle):
+    alias = attr.ib(default="")
+    pattern = attr.ib(default="")
+    align = attr.ib(default='auto', validator=in_(
+        ['auto', 'left', 'right', 'center']))
     link = attr.ib(validator=instance_of(bool), default=False)
-    link_url = attr.ib("")
-    link_tooltip = attr.ib("")
+    linkOpenInNewTab = attr.ib(validator=instance_of(bool), default=False)
+    linkUrl = attr.ib(validator=instance_of(str), default="")
+    linkTooltip = attr.ib(validator=instance_of(str), default="")
+
 
     def to_json_data(self):
         retval = super(ExtendedColumnStyle, self).to_json_data()
