@@ -1,6 +1,6 @@
 # extending grafanalib from https://github.com/weaveworks/grafanalib
 
-__version__ = 1.0
+__version__ = 1.1
 
 import json
 import random
